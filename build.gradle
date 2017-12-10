@@ -1,0 +1,22 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+apply plugin: 'idea'
+
+repositories {
+    mavenLocal()
+    maven { url System.getenv('GG_REPO') }
+    mavenCentral()
+}
+
+dependencies {
+    compile "greetgo.3rd-party:oracle-ojdbc6_g:11.2.0.3"
+    compile "greetgo.3rd-party:oracle-ucp:11.2.0.3"
+    compile "kz.greetgo:greetgo.conf:0.1.5"
+
+    // https://mvnrepository.com/artifact/postgresql/postgresql
+    compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
+
+
+}
+
