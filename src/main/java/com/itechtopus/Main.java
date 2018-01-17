@@ -6,15 +6,17 @@ import java.util.Map;
 public class Main {
 
   public static final String APP_DIR = "kaspiptp.d";
+  public static final String REGEX_EX = "--regex-ex";
   public static String POSTGRES_CONFIG_FILE = System.getProperty("user.home") + "/" + APP_DIR + "/postgres.properties";
   public static String ORACLE_CONFIG_FILE = System.getProperty("user.home") + "/" + APP_DIR + "/oracle.properties";
+  public static int MAX_DATA_COUNT = 1_000_000;
+  public static int MAX_BATCH_DATA = 50_000;
+  public static String TABLE_NAME_REGEX_TO_EXCLUDE = null;
 
   public static final String POSTGRES_PROP = "--postgres-prop";
   public static final String ORACLE_PROP = "--oracle-prop";
   public static final String MOCK_COUNT = "--mock-count";
   public static final String BATCH_SIZE = "--batch-size";
-  public static int MAX_DATA_COUNT = 1_000_000;
-  public static int MAX_BATCH_DATA = 50_000;
   public static final String HELP_SHORT = "-h";
   public static final String HELP = "--help";
   public static final String TEST = "--test";
@@ -34,22 +36,23 @@ public class Main {
     Integer argBatchSize = intArg(BATCH_SIZE);
     MAX_BATCH_DATA = argBatchSize != null ? argBatchSize : MAX_BATCH_DATA;
 
-    if (argument(POSTGRES_PROP)) {
-      String argPostgresFile = argValue(POSTGRES_PROP);
-      POSTGRES_CONFIG_FILE = !argPostgresFile.isEmpty() ? argPostgresFile : POSTGRES_CONFIG_FILE;
-    }
+
+    String argPostgresFile = argValue(POSTGRES_PROP);
+    POSTGRES_CONFIG_FILE = argPostgresFile != null && !argPostgresFile.isEmpty() ? argPostgresFile : POSTGRES_CONFIG_FILE;
     System.out.println("Используется параметры доступа к ДБ postgres из " + POSTGRES_CONFIG_FILE);
 
-    if (argument(ORACLE_PROP)) {
-      String argPostgresFile = argValue(ORACLE_PROP);
-      ORACLE_CONFIG_FILE = !argPostgresFile.isEmpty() ? argPostgresFile : ORACLE_CONFIG_FILE;
-    }
-    System.out.println("Используется параметры доступа к ДБ postgres из " + ORACLE_CONFIG_FILE);
+    String argOracleFile = argValue(ORACLE_PROP);
+    ORACLE_CONFIG_FILE = argOracleFile != null && !argOracleFile.isEmpty() ? argOracleFile : ORACLE_CONFIG_FILE;
+    System.out.println("Используется параметры доступа к ДБ oracle из " + ORACLE_CONFIG_FILE);
 
     if (argument(TEST) || argument(TEST_SHORT))
       testOnly();
 
+    String argRegex = argValue(REGEX_EX);
+    TABLE_NAME_REGEX_TO_EXCLUDE = argRegex != null && !argRegex.isEmpty() ? argRegex : null;
 
+    if (TABLE_NAME_REGEX_TO_EXCLUDE != null)
+      System.out.println("При миграции будет использоваться исключающая маска для названий: " + TABLE_NAME_REGEX_TO_EXCLUDE);
 
 
   }
