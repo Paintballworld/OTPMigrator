@@ -1,5 +1,6 @@
 package kz.greetgo.visualization;
 
+import static kz.greetgo.MigratorUtil.getStrRepresentationOfTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -23,6 +24,10 @@ public class ProgressBar {
     resetWithNewTable("Undefined");
   }
 
+  public void release() {
+    setStatus(MigrationStatus.RELEASED);
+  }
+
   public void resetWithNewTable(String tableName) {
     this.tableName = tableName;
     this.total = 0;
@@ -41,7 +46,7 @@ public class ProgressBar {
       case INITIALIZING: return "<init.>";
       case      READING: return "O>>B  p";
       case      WRITING: return "o  B>>P";
-      case RELEASED: return "<close>";
+      case     RELEASED: return "<next.>";
       default          : return "< n/a >";
     }
   }
@@ -60,25 +65,6 @@ public class ProgressBar {
     this.status = status;
   }
 
-  private String getStrRepresentationOfTime(long elapsed) {
-    List<String> line = new ArrayList<>();
-    LinkedHashMap<Integer, String> timeMap = new LinkedHashMap<>();
-    timeMap.put(1000 * 60 * 60, " ч");
-    timeMap.put(1000 * 60, " м");
-    timeMap.put(1000, " c");
-//    timeMap.put(1, " мc");
-    for (Map.Entry<Integer, String> pair : timeMap.entrySet()) {
-      if (elapsed > pair.getKey()) {
-        int power = (int)(elapsed / pair.getKey());
-        line.add(power + pair.getValue());
-        elapsed %= pair.getKey();
-      }
-    }
-    String elapsedStr = line.stream().collect(Collectors.joining(" "));
-    if (elapsedStr.length() > WIDTH)
-      elapsedStr = elapsedStr.substring(0, WIDTH - 3) + "...";
-    return elapsedStr;
-  }
 
   public String getProgressBar() {
     switch (status) {
@@ -121,11 +107,13 @@ public class ProgressBar {
   }
 
   private String getFinalizedProgressBar() {
-    StringBuilder sb = new StringBuilder("[").append(getStrRepresentationOfTime(elapsed));
+    StringBuilder sb = new StringBuilder("[").append(getStrRepresentationOfTime(elapsed, WIDTH));
     for (int i = sb.length(); i <= WIDTH; i++) {
       sb.append(".");
     }
     sb.append("]").append("_").append(getStatusRepresentation());
+    if (sb.toString().replaceAll("\\.", "").startsWith("[]"))
+      return getInitProgressBar();
     return sb.toString();
   }
 

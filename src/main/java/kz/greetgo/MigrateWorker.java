@@ -15,11 +15,7 @@ public class MigrateWorker {
   private static final String DELETE_TARGET_TABLE_QUERY = "delete from {{table_name}}";
   private static final String DROP_TARGET_TABLE_QUERY = "drop table {{table_name}}";
   private static final String SELECT_COUNT_QUERY = "select count(*) from {{table_name}}";
-  public static final int PROGRESS_BAR_SIZE = 10;
-  public static final int PROCESS_NOT_INITIALIZED = 0;
-  public static final int PROCESS_STOPPED = 1;
-  public static final int QUERYING = 3;
-  public static final int EXECUTING_BATCH = 4;
+
 
   private Connection source;
   private Connection target;
@@ -41,7 +37,7 @@ public class MigrateWorker {
     executeSql(DROP_TARGET_TABLE_QUERY.replace("{{table_name}}", tableName), target);
   }
 
-  public void  moveTableData() throws Exception {
+  public int  moveTableData() throws Exception {
     int result = 0;
     bar.resetWithNewTable(tableName);
 
@@ -58,7 +54,7 @@ public class MigrateWorker {
     ) {
       ResultSet sourceSet = sourceSelectStatement.executeQuery(selectSQL);
 
-      if (sourceSet == null || !sourceSet.next()) return;
+      if (sourceSet == null || !sourceSet.next()) return 0;
       try (
         ColumnUtilWorker columnUtilWorker = new ColumnUtilWorker(sourceSet, tableName, target)
       ) {
@@ -76,12 +72,11 @@ public class MigrateWorker {
           }
           currentCount.set(result);
         }
-      } catch (Exception debug) {
-        debug.printStackTrace();
       }
+    } finally {
+      bar.setStatus(MigrationStatus.RELEASED);
     }
-    bar.setStatus(MigrationStatus.RELEASED);
-
+    return result;
   }
 
   private int retrieveDataCount(String sql, Connection connection) throws SQLException {

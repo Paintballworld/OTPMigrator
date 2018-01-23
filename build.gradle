@@ -3,7 +3,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-version '0.0.1'
+version '0.0.2'
 
 repositories {
   mavenLocal()
@@ -26,7 +26,8 @@ jar {
   baseName 'migrator'
 
   manifest {
-    attributes 'Main-Class': 'kz.greetgo.visualization.ProgressBar'
+    attributes 'Main-Class': 'kz.greetgo.Main',
+      'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' ')
   }
 
 }

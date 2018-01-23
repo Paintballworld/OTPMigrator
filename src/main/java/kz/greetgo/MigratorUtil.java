@@ -9,9 +9,13 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import kz.greetgo.connections.ConnectionPool;
 
 public class MigratorUtil {
@@ -228,6 +232,26 @@ public class MigratorUtil {
           "getColumnTypeName", resultSetMetaData.getColumnTypeName(i)));
     }
     return resultMap;
+  }
+
+  public static String getStrRepresentationOfTime(long elapsed, int width) {
+    List<String> line = new ArrayList<>();
+    LinkedHashMap<Integer, String> timeMap = new LinkedHashMap<>();
+    timeMap.put(1000 * 60 * 60, " ч");
+    timeMap.put(1000 * 60, " м");
+    timeMap.put(1000, " c");
+//    timeMap.put(1, " мc");
+    for (Map.Entry<Integer, String> pair : timeMap.entrySet()) {
+      if (elapsed > pair.getKey()) {
+        int power = (int)(elapsed / pair.getKey());
+        line.add(power + pair.getValue());
+        elapsed %= pair.getKey();
+      }
+    }
+    String elapsedStr = line.stream().collect(Collectors.joining(" "));
+    if (width > 0 && elapsedStr.length() > width)
+      elapsedStr = elapsedStr.substring(0, width - 3) + "...";
+    return elapsedStr;
   }
 
   public static void main(String[] args) throws Exception {

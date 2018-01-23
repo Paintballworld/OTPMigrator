@@ -52,7 +52,7 @@ public class ColumnUtilWorker implements AutoCloseable {
       columnNames.add(metaData.getColumnName(i));
     }
     return insertSQL
-      .replace("{{column_names}}", columnNames.stream().collect(Collectors.joining(", ")))
+      .replace("{{column_names}}", columnNames.stream().map(o -> "\"" + o + "\"").collect(Collectors.joining(", ")))
       .replace("{{question_marks}}", columnNames.stream().map(o -> "?").collect(Collectors.joining(", ")));
   }
 
@@ -79,10 +79,13 @@ public class ColumnUtilWorker implements AutoCloseable {
       case 2: //NUMBER
         statement.setLong(columnIndex, resultSet.getLong(columnIndex));
         break;
+      case 2005: //CLOB
+        statement.setClob(columnIndex, resultSet.getClob(columnIndex));
+        break;
       default:
-        throw new RuntimeException(String.format("Не указан сеттер:\n\t %-20s : %s\n\t %-20s : %s\n\t %-20s : %s" +
+        throw new RuntimeException(String.format("Не указан сеттер:\n\t %-20s : %s\n\t %-20s : %s\n\t %-20s : %s",
           "Номер типа", "" + columnTypeMap.get("" + columnIndex),
-          "Имя таблицы", tableName ,
+          "Имя таблицы", "" + tableName ,
           "Индекс в запросе", "" + columnIndex));
     }
   }
