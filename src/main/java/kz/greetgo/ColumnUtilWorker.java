@@ -1,6 +1,6 @@
 package kz.greetgo;
 
-import static kz.greetgo.MigrateWorker.TARGET_INSERT_QUERY;
+import static kz.greetgo.migration.MigrateWorker.TARGET_INSERT_QUERY;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,7 +52,7 @@ public class ColumnUtilWorker implements AutoCloseable {
       columnNames.add(metaData.getColumnName(i));
     }
     return insertSQL
-      .replace("{{column_names}}", columnNames.stream().map(o -> "\"" + o + "\"").collect(Collectors.joining(", ")))
+      .replace("{{column_names}}", columnNames.stream().map(o -> "\"" + o + "\"").map(String::toLowerCase).collect(Collectors.joining(", ")))
       .replace("{{question_marks}}", columnNames.stream().map(o -> "?").collect(Collectors.joining(", ")));
   }
 

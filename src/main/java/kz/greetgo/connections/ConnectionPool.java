@@ -1,10 +1,8 @@
 package kz.greetgo.connections;
 
-import static kz.greetgo.Main.ORACLE_CONFIG_FILE;
-import static kz.greetgo.Main.POSTGRES_CONFIG_FILE;
+import static kz.greetgo.parameters.Parameters.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;

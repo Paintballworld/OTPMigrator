@@ -1,6 +1,8 @@
 package kz.greetgo;
 
 import static kz.greetgo.Main.*;
+import static kz.greetgo.parameters.Parameters.MAX_BATCH_SIZE;
+import static kz.greetgo.parameters.Parameters.MAX_DATA_COUNT;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.Connection;
@@ -206,7 +208,7 @@ public class MigratorUtil {
     }
   }
 
-  public static void printTable() {
+  public static void printTestTable() {
     System.err.println("    ╔════════════════════════════════════════════╗    ");
     System.err.println("    ║                                            ║    ");
     System.err.println("    ║        Проверка на готовность БД к         ║    ");
@@ -237,6 +239,7 @@ public class MigratorUtil {
   public static String getStrRepresentationOfTime(long elapsed, int width) {
     List<String> line = new ArrayList<>();
     LinkedHashMap<Integer, String> timeMap = new LinkedHashMap<>();
+    timeMap.put(1000 * 60 * 60 * 24, " дн");
     timeMap.put(1000 * 60 * 60, " ч");
     timeMap.put(1000 * 60, " м");
     timeMap.put(1000, " c");

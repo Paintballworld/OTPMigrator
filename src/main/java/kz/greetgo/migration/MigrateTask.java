@@ -1,17 +1,14 @@
-package kz.greetgo;
+package kz.greetgo.migration;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import kz.greetgo.connections.ConnectionPool;
-import kz.greetgo.visualization.MigrationStatus;
 import kz.greetgo.visualization.ProgressBar;
 import kz.greetgo.visualization.ProgressPool;
-import org.postgresql.util.PSQLException;
 
 public class MigrateTask implements Runnable {
 
@@ -52,7 +49,6 @@ public class MigrateTask implements Runnable {
 
       success.add(String.format("%-30s : %d", tableName, migrated));
     } catch (Exception e) {
-//      tableNamesPool.add(tableName); // returning table name back for another try
       String hiddenMessage = "";
       if (e instanceof BatchUpdateException) {
         hiddenMessage = ((BatchUpdateException) e).getNextException().getMessage();

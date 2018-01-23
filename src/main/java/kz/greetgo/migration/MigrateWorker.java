@@ -1,10 +1,12 @@
-package kz.greetgo;
+package kz.greetgo.migration;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicInteger;
+import kz.greetgo.ColumnUtilWorker;
+import kz.greetgo.parameters.*;
 import kz.greetgo.visualization.MigrationStatus;
 import kz.greetgo.visualization.ProgressBar;
 
@@ -64,7 +66,7 @@ public class MigrateWorker {
           columnUtilWorker.addBatch();
           needToExit = !sourceSet.next();
           bar.setCurrent(++result);
-          if ((result % Main.MAX_BATCH_SIZE == 0) || needToExit) {
+          if ((result % Parameters.MAX_BATCH_SIZE == 0) || needToExit) {
             bar.setStatus(MigrationStatus.WRITING);
             columnUtilWorker.executeBatch();
             target.commit();
