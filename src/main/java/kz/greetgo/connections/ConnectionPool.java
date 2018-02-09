@@ -64,7 +64,7 @@ public class ConnectionPool implements AutoCloseable {
 
   private Connection getPostgresConnect() throws Exception {
     Connection postgres =  DriverManager.getConnection("jdbc:postgresql://"//
-        + postgresConf.str("db.host") + ":" + postgresConf.str("db.port") + "/" + postgresConf.str("db.sid"),
+        + postgresConf.str("db.host") + ":" + postgresConf.str("db.port") + "/" + postgresConf.str("db.name"),
       postgresConf.str("db.username"), postgresConf.str("db.password"));
     if (postgres != null) {
 //      System.err.print("\rСоединение с postgres успешно установлено");

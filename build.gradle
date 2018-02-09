@@ -24,10 +24,12 @@ dependencies {
 
 jar {
   baseName 'migrator'
-
   manifest {
     attributes 'Main-Class': 'kz.greetgo.Main',
       'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' ')
   }
 
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
 }
