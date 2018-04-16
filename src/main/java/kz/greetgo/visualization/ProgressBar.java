@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class ProgressBar {
 
-  private static final int WIDTH = 15;
+  private static final int WIDTH = 28;
 
   private String tableName;
   private int total;
