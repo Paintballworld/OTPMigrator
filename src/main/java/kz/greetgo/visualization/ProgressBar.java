@@ -53,6 +53,7 @@ public class ProgressBar {
   }
 
   private String getStatusRepresentation() {
+    if (isMain) return "<work >";
     switch (status) {
       case INITIALIZING: return "<init.>";
       case      READING: return "O>>B  p";
