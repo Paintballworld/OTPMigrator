@@ -22,7 +22,7 @@ public class Parameters {
   public static final String TEST_SHORT = "-t";
   public static final String CLEAR_POSTGRES_DATA = "--clear-postgres";
 
-  public static String CLEAN_TABLES_QUERY = "SELECT table_name FROM information_schema.tables WHERE (table_schema='ptp' or table_schema='public') and table_name not like 'v_%' and table_nam not in ('dual', 'in_contract_for_update')";
+  public static String CLEAN_TABLES_QUERY = "SELECT table_name FROM information_schema.tables WHERE (table_schema='ptp' or table_schema='public') and table_name not like 'v_%' and table_name not in ('dual', 'in_contract_for_update')";
   public static String GET_TABLE_NAMES_QUERY = "select distinct table_name from user_tables order by table_name";
   public static String POSTGRES_CONFIG_FILE = System.getProperty("user.home") + "/" + APP_DIR + "/postgres.properties";
   public static String ORACLE_CONFIG_FILE = System.getProperty("user.home") + "/" + APP_DIR + "/oracle.properties";
