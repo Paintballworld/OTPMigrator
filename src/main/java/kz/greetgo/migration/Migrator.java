@@ -95,20 +95,21 @@ public class Migrator {
   }
 
   private void clearAllTables(Connection connection) throws SQLException, IOException {
+    connection.setAutoCommit(true);
     LOG.warn("Чистим целевые таблицы перед миграцией");
     ConcurrentLinkedQueue<String> tableNamesToClean = new ConcurrentLinkedQueue<>();
     fillTableNamesFromOracle(CLEAN_TABLES_QUERY, connection, tableNamesToClean);
     LOG.warn("Количество таблиц для чистки - " + tableNamesToClean.size());
-    try (
-          Statement st = connection.createStatement();
-    ) {
-      while (tableNamesToClean.size() > 0) {
+    while (tableNamesToClean.size() > 0) {
+      try (
+            Statement st = connection.createStatement();
+      ) {
         String tableName = tableNamesToClean.poll();
         System.err.print("\r Чистим таблицу " + tableName + ", " + tableNamesToClean.size());
         LOG.warn("Чистим таблицу " + tableName);
         try {
 //          st.executeUpdate("alter table " + tableName + " disable trigger all");
-          st.executeUpdate("delete from " + tableName);
+          st.executeUpdate("truncate " + tableName);
         } catch (SQLException e) {
           e.printStackTrace();
           System.err.println("\r Возвращаем в очередь " + tableName);
@@ -122,7 +123,7 @@ public class Migrator {
 
   private void executeSQL(Connection connection, String sql) throws SQLException {
     try (
-      Statement st = connection.createStatement()
+          Statement st = connection.createStatement()
     ) {
       st.executeUpdate(sql);
     }

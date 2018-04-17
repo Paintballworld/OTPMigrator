@@ -14,7 +14,7 @@ public class MigrateWorker {
 
   public static final String TARGET_INSERT_QUERY = "insert into {{table_name}} ({{column_names}}) values ({{question_marks}})";
   private static final String SOURCE_SELECT_QUERY = "select * from {{table_name}} ";
-  private static final String DELETE_TARGET_TABLE_QUERY = "delete from {{table_name}}";
+  private static final String DELETE_TARGET_TABLE_QUERY = "truncate from {{table_name}}";
   private static final String DROP_TARGET_TABLE_QUERY = "drop table {{table_name}}";
   private static final String SELECT_COUNT_QUERY = "select count(*) from {{table_name}}";
 

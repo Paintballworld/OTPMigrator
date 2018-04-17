@@ -3,7 +3,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-version '0.0.4' // Added main status bar
+version '0.0.5' // Added main status bar
 
 repositories {
   mavenLocal()
