@@ -252,9 +252,10 @@ public class MigratorUtil {
       }
     }
     String elapsedStr = line.stream().collect(Collectors.joining(" "));
+    elapsedStr = elapsedStr.length() > 0 ? elapsedStr : "менее секунды";
     if (width > 0 && elapsedStr.length() > width)
       elapsedStr = elapsedStr.substring(0, width - 3) + "...";
-    return elapsedStr.length() > 0 ? elapsedStr : "менее секунды";
+    return elapsedStr;
   }
 
   public static void main(String[] args) throws Exception {
