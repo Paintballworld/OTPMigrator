@@ -32,6 +32,12 @@ public class ProgressPool implements Runnable {
     return bar;
   }
 
+  public synchronized ProgressBar createMainBar() {
+    ProgressBar bar = new ProgressBar(30);
+    barPool.add(bar);
+    return bar;
+  }
+
   @Override
   public void run() {
     int nameCountDown = NAME_DISPLAY_COUNTER;

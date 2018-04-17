@@ -13,7 +13,7 @@ public class ProgressBar {
 
   public static final Logger LOG = Logger.getLogger(ProgressBar.class);
 
-  private static final int WIDTH = 20;
+  private int WIDTH = 20;
 
   private String tableName;
   private int total;
@@ -22,9 +22,16 @@ public class ProgressBar {
   private int animation = 1;
   private long startTime;
   private long elapsed;
+  private boolean isMain = false;
 
   public ProgressBar() {
     resetWithNewTable("Undefined");
+  }
+
+  public ProgressBar(int width) {
+    resetWithNewTable("Undefined");
+    WIDTH = width;
+    isMain = true;
   }
 
   public void release() {
@@ -74,6 +81,7 @@ public class ProgressBar {
 
 
   public String getProgressBar() {
+    if (isMain) return getWorkingProgressBar();
     switch (status) {
       case INITIALIZING: return getInitProgressBar();
       case READING:
@@ -84,13 +92,14 @@ public class ProgressBar {
   }
 
   public String getTableName() {
+    if (isMain) return getWorkingProgressBar();
     if (Arrays.asList(MigrationStatus.RELEASED, MigrationStatus.INITIALIZING).contains(status))
       return getFinalizedProgressBar();
     return getInitProgressBar();
   }
 
   private String getWorkingProgressBar() {
-    if (status == MigrationStatus.RELEASED) return getFinalizedProgressBar();
+    if (status == MigrationStatus.RELEASED && !isMain) return getFinalizedProgressBar();
     int percent = (int)(((float) current / (float) total) * (float)WIDTH) ;
     StringBuilder sb = new StringBuilder("[");
     for (int i = 0; i < WIDTH; i++) {

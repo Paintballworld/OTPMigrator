@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import kz.greetgo.MigratorUtil;
 import kz.greetgo.connections.ConnectionPool;
+import kz.greetgo.visualization.ProgressBar;
 import kz.greetgo.visualization.ProgressPool;
 import org.apache.log4j.Logger;
 
@@ -186,8 +187,12 @@ public class Migrator {
 
   private void realMigration(ConcurrentLinkedQueue<String> tableNamesQueue, ProgressPool progressPool, ConnectionPool connectionPool) throws InterruptedException {
     List<Thread> allThreads = new ArrayList<>();
+
+    final ProgressBar mainBar = progressPool.createMainBar();
+    mainBar.resetWithNewTable("TOTAL");
+    mainBar.start(tableNamesQueue.size());
     for (int i = 0; i < MAX_THREAD_COUNT; i++) {
-      allThreads.add(new Thread(new MigrateTask(connectionPool, progressPool, tableNamesQueue)));
+      allThreads.add(new Thread(new MigrateTask(connectionPool, progressPool, tableNamesQueue, mainBar)));
     }
     for (int i = 0; i < MAX_THREAD_COUNT; i++) {
       allThreads.get(i).start();
@@ -195,6 +200,7 @@ public class Migrator {
     for (int i = 0; i < MAX_THREAD_COUNT; i++) {
       allThreads.get(i).join();
     }
+    mainBar.release();
   }
 
 }

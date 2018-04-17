@@ -18,12 +18,17 @@ public class MigrateTask implements Runnable {
   private String tableName;
   private static List<String> errors = new ArrayList<>();
   private static List<String> success = new ArrayList<>();
-  ProgressBar progressBar;
+  private ProgressBar progressBar;
+  private ProgressBar mainBar;
+  private static int initialPoolSize = -1;
 
-  public MigrateTask(ConnectionPool connectionPool, ProgressPool progressPool, ConcurrentLinkedQueue<String> tableNamesPool) {
+  public MigrateTask(ConnectionPool connectionPool, ProgressPool progressPool, ConcurrentLinkedQueue<String> tableNamesPool, ProgressBar mainBar) {
     this.connectionPool = connectionPool;
     this.progressPool = progressPool;
     this.tableNamesPool = tableNamesPool;
+    this.mainBar = mainBar;
+    if (initialPoolSize < 0)
+      initialPoolSize = tableNamesPool.size();
   }
 
   @SuppressWarnings("StatementWithEmptyBody")
@@ -35,6 +40,7 @@ public class MigrateTask implements Runnable {
 
   private boolean iteration() {
     tableName = tableNamesPool.poll();
+    mainBar.setCurrent(initialPoolSize - tableNamesPool.size());
     if (tableName == null) return false;
     try (
       Connection source = connectionPool.borrowOracleConnection();
