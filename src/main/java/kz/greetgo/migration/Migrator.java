@@ -1,5 +1,6 @@
 package kz.greetgo.migration;
 
+import static kz.greetgo.parameters.Parameters.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -19,10 +20,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import kz.greetgo.MigratorUtil;
 import kz.greetgo.connections.ConnectionPool;
-import static kz.greetgo.parameters.Parameters.*;
 import kz.greetgo.visualization.ProgressPool;
+import org.apache.log4j.Logger;
 
 public class Migrator {
+
+  public static final Logger LOG = Logger.getLogger(Migrator.class);
 
   private List<String> excludePatterns = new ArrayList<>();
   private boolean excludesInitialized = false;
@@ -34,6 +37,8 @@ public class Migrator {
 
   public void mainMigrationProcess() throws Exception {
 
+    LOG.info("Начало миграции");
+
     Long startTime = System.currentTimeMillis();
 
     System.out.println("");
@@ -43,7 +48,7 @@ public class Migrator {
     ProgressPool progressPool = new ProgressPool();
     Thread progressThread = new Thread(progressPool);
     try (
-      ConnectionPool connectionPool = new ConnectionPool(MAX_THREAD_COUNT)
+          ConnectionPool connectionPool = new ConnectionPool(MAX_THREAD_COUNT)
     ) {
       Connection unPooledOracleConnection = connectionPool.getUnPooledOracleConnection();
       Connection unPooledPostgresConnection = connectionPool.getUnPooledPostgresConnection();
@@ -52,6 +57,7 @@ public class Migrator {
         clearAllTables(unPooledPostgresConnection);
 
       System.err.print("\rПолучение списка имен таблиц...");
+      LOG.info("Получение списка имен таблиц...");
       fillTableNamesFromOracle(GET_TABLE_NAMES_QUERY, unPooledOracleConnection, tableNamesQueue);
       System.err.println("\rКоличество таблиц для миграции: " + tableNamesQueue.size());
 
@@ -62,33 +68,62 @@ public class Migrator {
       progressPool.finish();
       progressThread.interrupt();
 
+      LOG.info("Успешно смигрированные таблицы:");
       System.out.println("\n\tУспешно смигрированные таблицы:");
-      System.out.println(MigrateTask.getSuccess());
+      final String success = MigrateTask.getSuccess();
+      LOG.info(success);
+      System.out.println(success);
 
+      LOG.warn("");
+      LOG.warn("");
+      LOG.warn("");
+      LOG.warn("");
+
+
+      final String errors = MigrateTask.getErrors();
+      LOG.warn("Данные не промигрированы:");
+      LOG.warn(errors);
       System.err.println("\r\n\n\tДанные не промигрированы:");
-      System.err.println(MigrateTask.getErrors());
+      System.err.println(errors);
 
       Long elapsed = System.currentTimeMillis() - startTime;
-      System.out.println("\n\n\n\tЗатрачено времени: " + MigratorUtil.getStrRepresentationOfTime(elapsed, -1));
+      final String finalStr = "Затрачено времени: " + MigratorUtil.getStrRepresentationOfTime(elapsed, 200);
+      LOG.info(finalStr);
+      System.out.println("\n\n\n\t" + finalStr);
     }
   }
 
   private void clearAllTables(Connection connection) throws SQLException, IOException {
+    LOG.warn("Чистим целевые таблицы перед миграцией");
     ConcurrentLinkedQueue<String> tableNamesToClean = new ConcurrentLinkedQueue<>();
     fillTableNamesFromOracle(CLEAN_TABLES_QUERY, connection, tableNamesToClean);
+    LOG.warn("Количество таблиц для чистки - " + tableNamesToClean.size());
     try (
-      Statement st = connection.createStatement()
+          Statement st = connection.createStatement();
     ) {
       while (tableNamesToClean.size() > 0) {
         String tableName = tableNamesToClean.poll();
-        System.err.print("\r Чистим таблицу " + tableName);
+        System.err.print("\r Чистим таблицу " + tableName + ", " + tableNamesToClean.size());
+        LOG.warn("Чистим таблицу " + tableName);
         try {
+//          st.executeUpdate("alter table " + tableName + " disable trigger all");
           st.executeUpdate("delete from " + tableName);
         } catch (SQLException e) {
+          e.printStackTrace();
           System.err.println("\r Возвращаем в очередь " + tableName);
+          LOG.error("Возвращаем в очередь " + tableName);
           tableNamesToClean.add(tableName);
         }
       }
+    }
+
+  }
+
+  private void executeSQL(Connection connection, String sql) throws SQLException {
+    try (
+      Statement st = connection.createStatement()
+    ) {
+      st.executeUpdate(sql);
     }
   }
 
@@ -100,7 +135,7 @@ public class Migrator {
     List<String> excludeTableNameList = Arrays.stream(excludeTables.split(",")).map(String::trim).collect(Collectors.toList());
 
     try (
-      PreparedStatement st = connection.prepareStatement(query)
+          PreparedStatement st = connection.prepareStatement(query)
     ) {
       ResultSet resultSet = st.executeQuery();
       if (resultSet == null)
@@ -124,7 +159,7 @@ public class Migrator {
         throw new RuntimeException(String.format("Не удается найти файл %s, не используйте параметр %s или уточните существующее местоположение файла", FILE_REGEX_TO_EXCLUDE, REGEX_EX_FILE));
 
       try (
-        BufferedReader reader = new BufferedReader(new FileReader(file))
+            BufferedReader reader = new BufferedReader(new FileReader(file))
       ) {
         String line;
         while ((line = reader.readLine()) != null) {
@@ -141,12 +176,12 @@ public class Migrator {
     if (!excludesInitialized)
       initializeExclude();
     return excludePatterns.parallelStream()
-      .map(Pattern::compile)
-      .map(o -> o.matcher(tableName))
-      .map(Matcher::matches)
-      .filter(o -> o)
-      .findAny()
-      .orElse(false);
+             .map(Pattern::compile)
+             .map(o -> o.matcher(tableName))
+             .map(Matcher::matches)
+             .filter(o -> o)
+             .findAny()
+             .orElse(false);
   }
 
   private void realMigration(ConcurrentLinkedQueue<String> tableNamesQueue, ProgressPool progressPool, ConnectionPool connectionPool) throws InterruptedException {

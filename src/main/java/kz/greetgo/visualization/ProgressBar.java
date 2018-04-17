@@ -7,10 +7,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.log4j.Logger;
 
 public class ProgressBar {
 
-  private static final int WIDTH = 28;
+  public static final Logger LOG = Logger.getLogger(ProgressBar.class);
+
+  private static final int WIDTH = 20;
 
   private String tableName;
   private int total;
@@ -37,6 +40,7 @@ public class ProgressBar {
   }
 
   public void start(int total) {
+    LOG.info("Начало для " + tableName + ", количество записей " + total);
     this.total = total;
     this.startTime = System.currentTimeMillis();
   }
@@ -60,8 +64,10 @@ public class ProgressBar {
   }
 
   public void setStatus(MigrationStatus status) {
-    if (status == MigrationStatus.RELEASED)
+    if (status == MigrationStatus.RELEASED) {
       this.elapsed = System.currentTimeMillis() - startTime;
+      LOG.info("Конец для " + tableName + ", затрачено времени " + getStrRepresentationOfTime(this.elapsed, 200));
+    }
     this.status = status;
   }
 

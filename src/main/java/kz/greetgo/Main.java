@@ -10,6 +10,8 @@ public class Main {
     Parameters.prepareArguments(args);
     Parameters.resolveArguments();
 
+    Parameters.soutParameterValues();
+
     Migrator migrator = new Migrator();
     migrator.mainMigrationProcess();
 
