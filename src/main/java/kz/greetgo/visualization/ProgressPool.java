@@ -37,7 +37,7 @@ public class ProgressPool implements Runnable {
     int nameCountDown = NAME_DISPLAY_COUNTER;
     while (!stopFlag.get()) {
       if (--nameCountDown <= 0) {
-        nameCountDown = NAME_DISPLAY_COUNTER / (showTableName ? 4 : 1);
+        nameCountDown = NAME_DISPLAY_COUNTER / (showTableName ? 1 : 10);
         showTableName = !showTableName;
       }
       soutBars();
