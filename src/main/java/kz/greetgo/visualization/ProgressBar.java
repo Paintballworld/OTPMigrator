@@ -65,8 +65,9 @@ public class ProgressBar {
 
   public void setStatus(MigrationStatus status) {
     if (status == MigrationStatus.RELEASED) {
-      this.elapsed = System.currentTimeMillis() - startTime;
-      LOG.info("Конец для " + tableName + ", затрачено времени " + getStrRepresentationOfTime(this.elapsed, 200));
+      final long l = System.currentTimeMillis() - startTime;
+      this.elapsed = l;
+      LOG.info("Конец для " + tableName + ", затрачено времени " + getStrRepresentationOfTime(l, 200));
     }
     this.status = status;
   }
@@ -143,7 +144,7 @@ public class ProgressBar {
     pb.start(49);
     for (int i = 0; i < 49; i++) {
       pb.setCurrent(i);
-      if (i % 4 == 0)
+      if (i % 7 == 0)
         pb.setStatus(MigrationStatus.READING);
       else
         pb.setStatus(MigrationStatus.WRITING);
@@ -152,5 +153,6 @@ public class ProgressBar {
     }
     pb.setStatus(MigrationStatus.RELEASED);
     System.out.print("\r" + pb.getProgressBar());
+    System.out.println(getStrRepresentationOfTime(pb.elapsed, 200));
   }
 }

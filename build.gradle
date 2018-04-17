@@ -3,7 +3,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-version '0.0.2'
+version '0.0.3' // fixed minor bugs
 
 repositories {
   mavenLocal()

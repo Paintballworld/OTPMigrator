@@ -49,7 +49,7 @@ public class ColumnUtilWorker implements AutoCloseable {
     String insertSQL = initialQuery.replace("{{table_name}}", tableName);
     List<String> columnNames = new ArrayList<>();
     for (int i = 1; i <= columnCount; i++) {
-      columnNames.add(metaData.getColumnName(i).toLowerCase().replaceAll("^right$", "right1"));
+      columnNames.add(metaData.getColumnName(i).replaceAll("^RIGHT$", "RIGHT1"));
     }
     return insertSQL
       .replace("{{column_names}}", columnNames.stream().map(o -> "\"" + o + "\"").map(String::toLowerCase).collect(Collectors.joining(", ")))

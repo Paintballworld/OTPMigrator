@@ -254,7 +254,7 @@ public class MigratorUtil {
     String elapsedStr = line.stream().collect(Collectors.joining(" "));
     if (width > 0 && elapsedStr.length() > width)
       elapsedStr = elapsedStr.substring(0, width - 3) + "...";
-    return elapsedStr;
+    return elapsedStr.length() > 0 ? elapsedStr : "менее секунды";
   }
 
   public static void main(String[] args) throws Exception {
