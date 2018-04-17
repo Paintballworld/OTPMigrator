@@ -62,7 +62,7 @@ public class ProgressPool implements Runnable {
     sb.append(progressString);
 
     if (barPool.size() >= DISPLAYING_BARS_COUNT)
-      sb.append("...");
+      sb.append("...").append(barPool.size() - DISPLAYING_BARS_COUNT).append(" еще");
 
     System.err.print("\r" + sb.toString());
   }
